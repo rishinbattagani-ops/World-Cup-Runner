@@ -180,3 +180,77 @@ function gameLoop(){
 }
 
 gameLoop();
+// =========================
+// SOCCER BALLS
+// =========================
+
+const balls = [];
+
+function spawnBall() {
+
+    balls.push({
+        x: WIDTH + 50,
+        y: Math.random() * 250 + 180,
+        r: 15
+    });
+
+}
+
+const oldUpdate = updateGame;
+
+updateGame = function () {
+
+    oldUpdate();
+
+    if (score % 180 === 0) {
+        spawnBall();
+    }
+
+    for (let i = balls.length - 1; i >= 0; i--) {
+
+        balls[i].x -= 5;
+
+        if (balls[i].x < -30) {
+            balls.splice(i, 1);
+            continue;
+        }
+
+        if (
+            balls[i].x > player.x &&
+            balls[i].x < player.x + player.w &&
+            balls[i].y > player.y &&
+            balls[i].y < player.y + player.h
+        ) {
+
+            score += 200;
+            balls.splice(i, 1);
+        }
+    }
+
+};
+
+const oldDraw = drawGame;
+
+drawGame = function () {
+
+    oldDraw();
+
+    balls.forEach(ball => {
+
+        ctx.beginPath();
+        ctx.fillStyle = "white";
+        ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = "black";
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+    });
+
+};
