@@ -1,7 +1,5 @@
-// =======================================
 // WORLD CUP RUNNER V3
-// Part 1
-// =======================================
+// PART 1
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -9,8 +7,10 @@ const ctx = canvas.getContext("2d");
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
 
+const GROUND = 470;
+const GRAVITY = 0.8;
+
 let score = 0;
-let frame = 0;
 
 const keys = {};
 
@@ -24,11 +24,10 @@ document.addEventListener("keyup", e => {
 
 const player = {
     x: 150,
-    y: 360,
-    width: 50,
-    height: 90,
+    y: GROUND,
+    w: 50,
+    h: 90,
 
-    vx: 0,
     vy: 0,
 
     jumping: false,
@@ -36,9 +35,6 @@ const player = {
 
     speed: 6
 };
-
-const gravity = 0.7;
-const ground = 360;
 
 function updatePlayer(){
 
@@ -51,169 +47,133 @@ function updatePlayer(){
     }
 
     if(keys["ArrowUp"] && !player.jumping){
-        player.vy = -14;
+        player.vy = -16;
         player.jumping = true;
     }
 
     player.sliding = keys["ArrowDown"];
 
-    player.vy += gravity;
+    player.vy += GRAVITY;
     player.y += player.vy;
 
-    if(player.y >= ground){
-        player.y = ground;
+    if(player.y > GROUND){
+        player.y = GROUND;
         player.vy = 0;
         player.jumping = false;
     }
 
-    if(player.x < 0) player.x = 0;
-    if(player.x + player.width > WIDTH)
-        player.x = WIDTH - player.width;
-}
+    if(player.x < 0){
+        player.x = 0;
+    }
 
-function drawSky(){
-
-    ctx.fillStyle="#87CEEB";
-    ctx.fillRect(0,0,WIDTH,HEIGHT);
-}
-
-function drawGrass(){
-
-    for(let i=0;i<12;i++){
-
-        ctx.fillStyle =
-            i%2==0 ? "#63c74d" : "#5db84a";
-
-        ctx.fillRect(
-            0,
-            i*50,
-            WIDTH,
-            50
-        );
+    if(player.x + player.w > WIDTH){
+        player.x = WIDTH - player.w;
     }
 }
 
-function drawFieldLines(){
+function drawBackground(){
+
+    ctx.fillStyle="#7ec8ff";
+    ctx.fillRect(0,0,WIDTH,HEIGHT);
+
+    ctx.fillStyle="#808080";
+    ctx.fillRect(0,0,WIDTH,120);
+
+    for(let i=0;i<WIDTH;i+=25){
+
+        ctx.fillStyle=i%50==0?"#ff4040":"white";
+
+        ctx.fillRect(i,20,25,18);
+    }
+
+    for(let i=0;i<HEIGHT;i+=60){
+
+        ctx.fillStyle=i%120==0?"#5fbf5f":"#63c74d";
+
+        ctx.fillRect(0,i,WIDTH,60);
+    }
 
     ctx.strokeStyle="white";
     ctx.lineWidth=5;
 
     ctx.beginPath();
-    ctx.moveTo(WIDTH/2,0);
+    ctx.moveTo(WIDTH/2,120);
     ctx.lineTo(WIDTH/2,HEIGHT);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.arc(
-        WIDTH/2,
-        HEIGHT/2,
-        70,
-        0,
-        Math.PI*2
-    );
+    ctx.arc(WIDTH/2,HEIGHT/2+40,70,0,Math.PI*2);
     ctx.stroke();
 }
+// WORLD CUP RUNNER V3
+// PART 2
 
 function drawPlayer(){
 
-    let h = player.height;
+    let h = player.h;
 
     if(player.sliding){
-        h = 55;
+        h = 50;
     }
 
-    ctx.fillStyle="red";
-
+    // Body
+    ctx.fillStyle="#d62828";
     ctx.fillRect(
         player.x,
-        player.y + (player.height-h),
-        player.width,
+        player.y + (player.h-h),
+        player.w,
         h
     );
 
-    ctx.fillStyle="white";
-
+    // Head
+    ctx.fillStyle="#ffd6a5";
     ctx.beginPath();
-
     ctx.arc(
-        player.x+25,
-        player.y-15,
+        player.x + player.w/2,
+        player.y - 15,
         15,
         0,
         Math.PI*2
     );
-
     ctx.fill();
-}// =======================================
-// WORLD CUP RUNNER V3
-// Part 2
-// =======================================
 
-function drawStadium() {
-
-    ctx.fillStyle = "#8b8b8b";
-    ctx.fillRect(0, 0, WIDTH, 110);
-
-    for (let i = 0; i < WIDTH; i += 20) {
-        ctx.fillStyle = i % 40 === 0 ? "#ff4444" : "#ffffff";
-        ctx.fillRect(i, 20, 20, 15);
-    }
-
-    ctx.fillStyle = "#444";
-    ctx.fillRect(0, 110, WIDTH, 10);
+    // Jersey stripe
+    ctx.fillStyle="white";
+    ctx.fillRect(
+        player.x + 20,
+        player.y + (player.h-h),
+        10,
+        h
+    );
 }
 
-function drawGoal() {
+function drawHUD(){
 
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 4;
-
-    ctx.strokeRect(WIDTH / 2 - 60, 120, 120, 70);
-
-    for (let x = WIDTH / 2 - 60; x <= WIDTH / 2 + 60; x += 15) {
-        ctx.beginPath();
-        ctx.moveTo(x, 120);
-        ctx.lineTo(x, 190);
-        ctx.stroke();
-    }
-
-    for (let y = 120; y <= 190; y += 15) {
-        ctx.beginPath();
-        ctx.moveTo(WIDTH / 2 - 60, y);
-        ctx.lineTo(WIDTH / 2 + 60, y);
-        ctx.stroke();
-    }
+    ctx.fillStyle="white";
+    ctx.font="28px Arial";
+    ctx.fillText("Score: " + score,20,40);
 }
 
-function drawHUD() {
+function updateGame(){
 
-    ctx.fillStyle = "white";
-    ctx.font = "28px Arial";
-    ctx.fillText("Score: " + score, 20, 40);
-}
-
-function updateGame() {
-
-    frame++;
     score++;
 
     updatePlayer();
 }
 
-function drawGame() {
+function drawGame(){
 
-    drawSky();
-    drawGrass();
-    drawFieldLines();
-    drawStadium();
-    drawGoal();
+    drawBackground();
+
     drawPlayer();
+
     drawHUD();
 }
 
-function gameLoop() {
+function gameLoop(){
 
     updateGame();
+
     drawGame();
 
     requestAnimationFrame(gameLoop);
