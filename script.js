@@ -433,21 +433,27 @@ function updateObjects(){
 
     spawnTimer++;
 
-    if(spawnTimer>80){
+   if(spawnTimer>80){
 
-        spawnTimer=0;
+    spawnTimer = 0;
 
-        if(Math.random()<0.6){
+    const r = Math.random();
 
-            spawnBall();
+    if(r < 0.45){
 
-        }else{
+        spawnBall();
 
-            spawnCone();
+    }else if(r < 0.75){
 
-        }
+        spawnCone();
+
+    }else{
+
+        spawnRival();
 
     }
+
+}
 
     //-------------------
     // Soccer Balls
