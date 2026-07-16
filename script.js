@@ -410,7 +410,21 @@ function spawnCone(){
     });
 
 }
+function spawnRival(){
 
+    rivals.push({
+
+        x: WIDTH + 60,
+
+        y: 300,
+
+        width: 45,
+
+        height: 80
+
+    });
+
+}
 //-------------------------
 // Update Objects
 //-------------------------
