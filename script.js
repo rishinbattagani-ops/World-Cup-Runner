@@ -297,11 +297,15 @@ function update(){
 
     if(gameOver) return;
 
-    distance+=0.2;
+    distance += 0.2;
 
-    score=Math.floor(distance);
+    score = Math.floor(distance);
 
     updatePlayer();
+
+    updateObjects();
+
+    worldSpeed += 0.0005;
 
     updateHUD();
 
@@ -314,6 +318,8 @@ function update(){
 function draw(){
 
     drawBackground();
+
+    drawObjects();
 
     drawPlayer();
 
@@ -551,26 +557,4 @@ function endGame(){
 // Patch Existing Functions
 //-------------------------
 
-const oldUpdate = update;
 
-update = function(){
-
-    oldUpdate();
-
-    if(!running) return;
-
-    updateObjects();
-
-    worldSpeed += 0.0005;
-
-};
-
-const oldDraw = draw;
-
-draw = function(){
-
-    oldDraw();
-
-    drawObjects();
-
-};
