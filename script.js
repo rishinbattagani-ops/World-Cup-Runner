@@ -33,7 +33,9 @@ let distance = 0;
 
 let worldSpeed = 7;
 let gravity = 0.8;
-
+let grassOffset = 0;
+let cloudOffset = 0;
+let runFrame = 0;
 //===============================
 // Player
 //===============================
@@ -215,7 +217,13 @@ function drawBackground(){
     ctx.fillStyle="#28a745";
 
     ctx.fillRect(0,170,WIDTH,330);
+ctx.fillStyle="#35c94d";
 
+for(let i=-40;i<WIDTH+40;i+=40){
+
+    ctx.fillRect(i+grassOffset,170,20,330);
+
+}
     // Grass lines
 
     ctx.strokeStyle="#3fd95d";
@@ -306,7 +314,19 @@ function update(){
     updateObjects();
 
     worldSpeed += 0.0005;
+grassOffset -= worldSpeed;
 
+if(grassOffset <= -40){
+    grassOffset = 0;
+}
+
+cloudOffset -= worldSpeed * 0.2;
+
+if(cloudOffset <= -WIDTH){
+    cloudOffset = 0;
+}
+
+runFrame += 0.25;
     updateHUD();
 
 }
