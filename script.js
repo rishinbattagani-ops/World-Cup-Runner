@@ -313,7 +313,9 @@ function update(){
 
     updateObjects();
 
-    worldSpeed += 0.0005;
+    const speedLevel = Math.floor(score / 500);
+
+worldSpeed = 7 + speedLevel * 0.5;
 grassOffset -= worldSpeed;
 
 if(grassOffset <= -40){
