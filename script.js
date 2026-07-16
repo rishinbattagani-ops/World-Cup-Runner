@@ -522,7 +522,34 @@ function updateObjects(){
     }
 
 }
+//-------------------
+// Rivals
+//-------------------
 
+for(let i = rivals.length - 1; i >= 0; i--){
+
+    let rival = rivals[i];
+
+    rival.x -= worldSpeed;
+
+    if(rival.x < -100){
+
+        rivals.splice(i,1);
+
+    }
+if(
+
+    player.x < rival.x + rival.width &&
+    player.x + player.width > rival.x &&
+    player.y < rival.y + rival.height &&
+    player.y + player.height > rival.y
+
+){
+
+    endGame();
+
+}
+}
 //-------------------------
 // Draw Objects
 //-------------------------
@@ -576,7 +603,38 @@ function drawObjects(){
         ctx.fill();
 
     });
+//-------------------
+// Rivals
+//-------------------
 
+rivals.forEach(rival=>{
+
+    // Body
+    ctx.fillStyle = "#e63946";
+
+    ctx.fillRect(
+        rival.x,
+        rival.y,
+        rival.width,
+        rival.height
+    );
+
+    // Head
+    ctx.beginPath();
+
+    ctx.fillStyle = "#ffd39b";
+
+    ctx.arc(
+        rival.x + rival.width / 2,
+        rival.y - 15,
+        15,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+});
 }
 
 //-------------------------
