@@ -374,7 +374,7 @@ function loop(){
 
 const soccerBalls = [];
 const cones = [];
-
+const rivals = [];
 let spawnTimer = 0;
 
 //-------------------------
