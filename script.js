@@ -339,7 +339,7 @@ function loop(){
 
 }
 
-loop();
+
 //==========================================
 // PART 2
 // World Objects + Collisions
@@ -552,9 +552,4 @@ function endGame(){
     gameOverScreen.style.display="flex";
 
 }
-
-//-------------------------
-// Patch Existing Functions
-//-------------------------
-
-
+loop();
