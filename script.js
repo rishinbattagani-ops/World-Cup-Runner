@@ -334,3 +334,243 @@ function loop(){
 }
 
 loop();
+//==========================================
+// PART 2
+// World Objects + Collisions
+// Add this BELOW Part 1
+//==========================================
+
+//-------------------------
+// Arrays
+//-------------------------
+
+const soccerBalls = [];
+const cones = [];
+
+let spawnTimer = 0;
+
+//-------------------------
+// Spawn Functions
+//-------------------------
+
+function spawnBall(){
+
+    soccerBalls.push({
+
+        x: WIDTH + 50,
+
+        y: Math.random() > 0.5 ? 290 : 220,
+
+        radius:15
+
+    });
+
+}
+
+function spawnCone(){
+
+    cones.push({
+
+        x: WIDTH + 60,
+
+        y:355,
+
+        width:35,
+
+        height:45
+
+    });
+
+}
+
+//-------------------------
+// Update Objects
+//-------------------------
+
+function updateObjects(){
+
+    spawnTimer++;
+
+    if(spawnTimer>80){
+
+        spawnTimer=0;
+
+        if(Math.random()<0.6){
+
+            spawnBall();
+
+        }else{
+
+            spawnCone();
+
+        }
+
+    }
+
+    //-------------------
+    // Soccer Balls
+    //-------------------
+
+    for(let i=soccerBalls.length-1;i>=0;i--){
+
+        let ball=soccerBalls[i];
+
+        ball.x-=worldSpeed;
+
+        if(ball.x<-50){
+
+            soccerBalls.splice(i,1);
+
+            continue;
+
+        }
+
+        let dx=(player.x+player.width/2)-ball.x;
+        let dy=(player.y+player.height/2)-ball.y;
+
+        let dist=Math.sqrt(dx*dx+dy*dy);
+
+        if(dist<35){
+
+            soccerBalls.splice(i,1);
+
+            score+=10;
+
+        }
+
+    }
+
+    //-------------------
+    // Cones
+    //-------------------
+
+    for(let i=cones.length-1;i>=0;i--){
+
+        let cone=cones[i];
+
+        cone.x-=worldSpeed;
+
+        if(cone.x<-100){
+
+            cones.splice(i,1);
+
+            continue;
+
+        }
+
+        if(
+
+            player.x < cone.x+cone.width &&
+            player.x+player.width > cone.x &&
+            player.y < cone.y+cone.height &&
+            player.y+player.height > cone.y
+
+        ){
+
+            endGame();
+
+        }
+
+    }
+
+}
+
+//-------------------------
+// Draw Objects
+//-------------------------
+
+function drawObjects(){
+
+    //-------------------
+    // Soccer Balls
+    //-------------------
+
+    soccerBalls.forEach(ball=>{
+
+        ctx.fillStyle="white";
+
+        ctx.beginPath();
+
+        ctx.arc(ball.x,ball.y,ball.radius,0,Math.PI*2);
+
+        ctx.fill();
+
+        ctx.strokeStyle="black";
+
+        ctx.stroke();
+
+        ctx.beginPath();
+
+        ctx.arc(ball.x,ball.y,5,0,Math.PI*2);
+
+        ctx.stroke();
+
+    });
+
+    //-------------------
+    // Cones
+    //-------------------
+
+    cones.forEach(cone=>{
+
+        ctx.fillStyle="orange";
+
+        ctx.beginPath();
+
+        ctx.moveTo(cone.x+cone.width/2,cone.y);
+
+        ctx.lineTo(cone.x,cone.y+cone.height);
+
+        ctx.lineTo(cone.x+cone.width,cone.y+cone.height);
+
+        ctx.closePath();
+
+        ctx.fill();
+
+    });
+
+}
+
+//-------------------------
+// Game Over
+//-------------------------
+
+function endGame(){
+
+    running=false;
+
+    gameOver=true;
+
+    finalScore.textContent=score;
+
+    gameOverScreen.style.display="flex";
+
+}
+
+//-------------------------
+// Patch Existing Functions
+//-------------------------
+
+const oldUpdate = update;
+
+update = function(){
+
+    oldUpdate();
+
+    if(!running) return;
+
+    updateObjects();
+
+    worldSpeed += 0.0005;
+
+};
+
+const oldDraw = draw;
+
+draw = function(){
+
+    oldDraw();
+
+    drawObjects();
+
+};
