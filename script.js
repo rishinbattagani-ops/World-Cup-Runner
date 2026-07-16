@@ -1,8 +1,8 @@
-// ======================================
-// WORLD CUP RUNNER
-// SCRIPT.JS
-// PART 1
-// ======================================
+// ================================
+// World Cup Runner
+// script.js
+// PART 1 - Game Engine
+// ================================
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -10,425 +10,327 @@ const ctx = canvas.getContext("2d");
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
 
-const GROUND = HEIGHT - 110;
-const GRAVITY = 0.8;
+const scoreText = document.getElementById("score");
+const distanceText = document.getElementById("distance");
+
+const startScreen = document.getElementById("startScreen");
+const gameOverScreen = document.getElementById("gameOver");
+
+const startBtn = document.getElementById("startBtn");
+const restartBtn = document.getElementById("restartBtn");
+
+const finalScore = document.getElementById("finalScore");
+
+//===============================
+// Game Variables
+//===============================
+
+let running = false;
+let gameOver = false;
 
 let score = 0;
-let gameOver = false;
-let frame = 0;
+let distance = 0;
 
-const keys = {};
+let worldSpeed = 7;
+let gravity = 0.8;
 
-document.addEventListener("keydown", e => {
-    keys[e.key] = true;
-
-    if (gameOver && e.key === " ") {
-        restartGame();
-    }
-});
-
-document.addEventListener("keyup", e => {
-    keys[e.key] = false;
-});
+//===============================
+// Player
+//===============================
 
 const player = {
 
-    x:150,
-    y:GROUND,
+    x:120,
+    y:320,
 
-    w:50,
-    h:90,
+    width:55,
+    height:80,
 
-    vy:0,
+    color:"#1E90FF",
+
+    velocityY:0,
 
     jumping:false,
+
     sliding:false,
 
-    speed:6
+    slideTimer:0
 
 };
 
-const balls = [];
-const cones = [];
+//===============================
+// Controls
+//===============================
 
-function restartGame(){
+const keys = {};
 
-    score = 0;
-    frame = 0;
+window.addEventListener("keydown",(e)=>{
 
-    gameOver = false;
+    keys[e.key.toLowerCase()] = true;
 
-    balls.length = 0;
-    cones.length = 0;
+    if(
+        e.code==="Space" ||
+        e.key==="ArrowUp" ||
+        e.key==="w"
+    ){
+        jump();
+    }
 
-    player.x = 150;
-    player.y = GROUND;
-    player.vy = 0;
-    player.jumping = false;
-    player.sliding = false;
+    if(
+        e.key==="ArrowDown" ||
+        e.key==="s"
+    ){
+        slide();
+    }
+
+});
+
+window.addEventListener("keyup",(e)=>{
+
+    keys[e.key.toLowerCase()] = false;
+
+});
+
+//===============================
+// Start
+//===============================
+
+startBtn.onclick=()=>{
+
+    startScreen.style.display="none";
+
+    running=true;
+
+};
+
+restartBtn.onclick=()=>{
+
+    location.reload();
+
+};
+
+//===============================
+// Jump
+//===============================
+
+function jump(){
+
+    if(player.jumping) return;
+
+    player.velocityY=-16;
+
+    player.jumping=true;
 
 }
+
+//===============================
+// Slide
+//===============================
+
+function slide(){
+
+    if(player.sliding) return;
+
+    if(player.jumping) return;
+
+    player.sliding=true;
+
+    player.slideTimer=35;
+
+    player.height=45;
+
+    player.y=355;
+
+}
+
+//===============================
+// Update Player
+//===============================
 
 function updatePlayer(){
 
-    if(keys["ArrowLeft"]){
+    player.velocityY+=gravity;
 
-        player.x -= player.speed;
+    player.y+=player.velocityY;
 
-    }
+    if(player.y>=320){
 
-    if(keys["ArrowRight"]){
+        player.y=320;
 
-        player.x += player.speed;
+        player.velocityY=0;
 
-    }
-
-    if(keys["ArrowUp"] && !player.jumping){
-
-        player.vy = -16;
-        player.jumping = true;
+        player.jumping=false;
 
     }
 
-    player.sliding = keys["ArrowDown"];
+    if(player.sliding){
 
-    player.vy += GRAVITY;
+        player.slideTimer--;
 
-    player.y += player.vy;
+        if(player.slideTimer<=0){
 
-    if(player.y > GROUND){
+            player.sliding=false;
 
-        player.y = GROUND;
+            player.height=80;
 
-        player.vy = 0;
+            player.y=320;
 
-        player.jumping = false;
-
-    }
-
-    if(player.x < 0){
-
-        player.x = 0;
-
-    }
-
-    if(player.x + player.w > WIDTH){
-
-        player.x = WIDTH-player.w;
+        }
 
     }
 
 }
-// ======================================
-// WORLD CUP RUNNER
-// SCRIPT.JS
-// PART 2
-// ======================================
+
+//===============================
+// Draw Stadium
+//===============================
 
 function drawBackground(){
 
     // Sky
-    ctx.fillStyle="#7ec8ff";
+
+    ctx.fillStyle="#7ecbff";
     ctx.fillRect(0,0,WIDTH,HEIGHT);
 
-    // Stadium
-    ctx.fillStyle="#888";
-    ctx.fillRect(0,0,WIDTH,120);
+    // Crowd
 
-    for(let x=0;x<WIDTH;x+=25){
+    ctx.fillStyle="#555";
 
-        ctx.fillStyle=(x/25)%2===0?"#ffffff":"#ff4040";
-        ctx.fillRect(x,20,25,18);
+    ctx.fillRect(0,50,WIDTH,120);
+
+    for(let i=0;i<WIDTH;i+=20){
+
+        ctx.fillStyle=i%40==0?"#ff4757":"#f1c40f";
+
+        ctx.beginPath();
+
+        ctx.arc(i+10,110,6,0,Math.PI*2);
+
+        ctx.fill();
 
     }
 
-    // Grass stripes
-    for(let y=120;y<HEIGHT;y+=50){
+    // Field
 
-        ctx.fillStyle=((y/50)%2===0)?"#63c74d":"#59b846";
-        ctx.fillRect(0,y,WIDTH,50);
+    ctx.fillStyle="#28a745";
+
+    ctx.fillRect(0,170,WIDTH,330);
+
+    // Grass lines
+
+    ctx.strokeStyle="#3fd95d";
+
+    for(let i=0;i<WIDTH;i+=60){
+
+        ctx.beginPath();
+
+        ctx.moveTo(i,170);
+
+        ctx.lineTo(i+40,500);
+
+        ctx.stroke();
 
     }
 
-    // Halfway line
-    ctx.strokeStyle="white";
-    ctx.lineWidth=5;
-
-    ctx.beginPath();
-    ctx.moveTo(WIDTH/2,120);
-    ctx.lineTo(WIDTH/2,HEIGHT);
-    ctx.stroke();
-
-    // Center circle
-    ctx.beginPath();
-    ctx.arc(WIDTH/2,HEIGHT/2+30,70,0,Math.PI*2);
-    ctx.stroke();
 }
+
+//===============================
+// Draw Player
+//===============================
 
 function drawPlayer(){
 
-    let h=player.h;
+    ctx.fillStyle=player.color;
 
-    if(player.sliding){
-
-        h=50;
-
-    }
-
-    // Body
-    ctx.fillStyle="#d62828";
     ctx.fillRect(
+
         player.x,
-        player.y+(player.h-h),
-        player.w,
-        h
+        player.y,
+        player.width,
+        player.height
+
     );
 
     // Head
-    ctx.fillStyle="#ffd6a5";
 
     ctx.beginPath();
+
+    ctx.fillStyle="#ffd39b";
+
     ctx.arc(
-        player.x+player.w/2,
+
+        player.x+27,
+
         player.y-15,
+
         15,
+
         0,
+
         Math.PI*2
+
     );
 
     ctx.fill();
 
-    // Jersey stripe
-    ctx.fillStyle="white";
-
-    ctx.fillRect(
-        player.x+20,
-        player.y+(player.h-h),
-        10,
-        h
-    );
 }
 
-function spawnBall(){
+//===============================
+// HUD
+//===============================
 
-    balls.push({
+function updateHUD(){
 
-        x:WIDTH+40,
+    scoreText.textContent=score;
 
-        y:Math.random()*220+170,
-
-        r:15,
-
-        speed:5
-
-    });
+    distanceText.textContent=Math.floor(distance);
 
 }
 
-function spawnCone(){
+//===============================
+// Main Update
+//===============================
 
-    cones.push({
+function update(){
 
-        x:WIDTH+40,
+    if(!running) return;
 
-        y:GROUND+50,
+    if(gameOver) return;
 
-        w:35,
+    distance+=0.2;
 
-        h:55,
-
-        speed:6
-
-    });
-
-}
-// ======================================
-// WORLD CUP RUNNER
-// SCRIPT.JS
-// PART 3
-// ======================================
-
-function updateBalls(){
-
-    if(frame % 120 === 0){
-
-        spawnBall();
-
-    }
-
-    for(let i=balls.length-1;i>=0;i--){
-
-        const b=balls[i];
-
-        b.x-=b.speed;
-
-        if(b.x<-30){
-
-            balls.splice(i,1);
-            continue;
-
-        }
-
-        const dx=(player.x+player.w/2)-b.x;
-        const dy=(player.y+player.h/2)-b.y;
-
-        if(Math.sqrt(dx*dx+dy*dy)<30){
-
-            score+=100;
-
-            balls.splice(i,1);
-
-        }
-
-    }
-
-}
-
-function updateCones(){
-
-    if(frame % 180 === 0){
-
-        spawnCone();
-
-    }
-
-    for(let i=cones.length-1;i>=0;i--){
-
-        const c=cones[i];
-
-        c.x-=c.speed;
-
-        if(c.x<-50){
-
-            cones.splice(i,1);
-            continue;
-
-        }
-
-        if(
-
-            player.x < c.x+c.w &&
-            player.x+player.w > c.x &&
-            player.y+player.h > c.y &&
-            player.y < c.y+c.h
-
-        ){
-
-            gameOver=true;
-
-        }
-
-    }
-
-}
-
-function drawBalls(){
-
-    balls.forEach(b=>{
-
-        ctx.beginPath();
-        ctx.fillStyle="white";
-        ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
-        ctx.fill();
-
-        ctx.strokeStyle="black";
-        ctx.lineWidth=2;
-        ctx.stroke();
-
-        ctx.fillStyle="black";
-        ctx.beginPath();
-        ctx.arc(b.x,b.y,4,0,Math.PI*2);
-        ctx.fill();
-
-    });
-
-}
-
-function drawCones(){
-
-    cones.forEach(c=>{
-
-        ctx.fillStyle="orange";
-        ctx.fillRect(c.x,c.y,c.w,c.h);
-
-        ctx.fillStyle="white";
-
-        ctx.fillRect(c.x,c.y+15,c.w,5);
-        ctx.fillRect(c.x,c.y+30,c.w,5);
-
-    });
-
-}
-
-function drawHUD(){
-
-    ctx.fillStyle="white";
-    ctx.font="28px Arial";
-
-    ctx.fillText("Score: "+score,20,40);
-
-}
-
-function drawGameOver(){
-
-    if(!gameOver) return;
-
-    ctx.fillStyle="rgba(0,0,0,.55)";
-    ctx.fillRect(0,0,WIDTH,HEIGHT);
-
-    ctx.fillStyle="white";
-    ctx.font="60px Arial";
-    ctx.fillText("GAME OVER",WIDTH/2-180,220);
-
-    ctx.font="28px Arial";
-    ctx.fillText("Press SPACE to Restart",WIDTH/2-150,280);
-
-}
-// ======================================
-// WORLD CUP RUNNER
-// SCRIPT.JS
-// PART 4 (FINAL)
-// ======================================
-
-function updateGame(){
-
-    if(gameOver){
-        return;
-    }
-
-    frame++;
-    score++;
+    score=Math.floor(distance);
 
     updatePlayer();
-    updateBalls();
-    updateCones();
+
+    updateHUD();
 
 }
 
-function drawGame(){
+//===============================
+// Main Draw
+//===============================
+
+function draw(){
 
     drawBackground();
 
-    drawBalls();
-
-    drawCones();
-
     drawPlayer();
 
-    drawHUD();
+}
 
-    drawGameOver();
+//===============================
+// Loop
+//===============================
+
+function loop(){
+
+    update();
+
+    draw();
+
+    requestAnimationFrame(loop);
 
 }
 
-function gameLoop(){
-
-    updateGame();
-
-    drawGame();
-
-    requestAnimationFrame(gameLoop);
-
-}
-
-gameLoop();
+loop();
