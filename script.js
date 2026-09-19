@@ -526,7 +526,9 @@ function updateObjects(){
 // Rivals
 //-------------------
 
-for(let i = rivals.length - 1; i >= 0; i--){
+function updateRivals(){
+
+    for(let i = rivals.length - 1; i >= 0; i--){
 
     let rival = rivals[i];
 
@@ -549,7 +551,11 @@ if(
     endGame();
 
 }
+
 }
+        
+}
+
 //-------------------------
 // Draw Objects
 //-------------------------
